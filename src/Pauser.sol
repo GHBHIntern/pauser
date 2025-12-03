@@ -66,6 +66,7 @@ contract Pauser is Ownable, IPauser {
      */
     function register(address pausableContract) external onlyOwner {
         // Stub - will revert in tests
+        //TODO: for green phase, check if pausableContract has already set this contract as its pauser. Revert with helpful message if not
     }
 
     /**
@@ -74,6 +75,7 @@ contract Pauser is Ownable, IPauser {
      */
     function unregister(address pausableContract) external onlyOwner {
         // Stub - will revert in tests
+          //TODO: for green phase, check if pausableContract has already unset this contract as its pauser. Revert with helpful message if not
     }
 
     /**
@@ -83,6 +85,7 @@ contract Pauser is Ownable, IPauser {
      */
     function config(uint256 _eyeBurnAmount, address _eyeToken) external onlyOwner {
         // Stub - will revert in tests
+        //TODO: let the burn amount default to 1000 but be configurable as is show here
     }
 
     // ============ VIEW FUNCTIONS ============
