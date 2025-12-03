@@ -26,4 +26,12 @@ interface IPausable {
      *      Should clear internal pause state to resume normal operations
      */
     function unpause() external;
+
+    /**
+     * @notice Get the authorized pauser address
+     * @dev This getter is required for backward compatibility with Behodler3
+     *      Pausable contracts should expose: address public pauser;
+     * @return The address authorized to pause/unpause this contract
+     */
+    function pauser() external view returns (address);
 }

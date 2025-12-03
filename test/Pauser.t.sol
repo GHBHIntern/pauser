@@ -123,6 +123,9 @@ contract PauserTest is Test {
         pauser.register(address(pausable1));
         pauser.register(address(pausable2));
 
+        // Clear pauser before unregistering (required validation)
+        pausable1.setPauser(address(0));
+
         pauser.unregister(address(pausable1));
 
         address[] memory contracts = pauser.getPausableContracts();
@@ -132,6 +135,10 @@ contract PauserTest is Test {
 
     function test_unregister_setsIsRegisteredFalse() public {
         pauser.register(address(pausable1));
+
+        // Clear pauser before unregistering (required validation)
+        pausable1.setPauser(address(0));
+
         pauser.unregister(address(pausable1));
 
         assertFalse(pauser.isRegistered(address(pausable1)), "isRegistered should be false");
@@ -139,6 +146,9 @@ contract PauserTest is Test {
 
     function test_unregister_emitsContractUnregisteredEvent() public {
         pauser.register(address(pausable1));
+
+        // Clear pauser before unregistering (required validation)
+        pausable1.setPauser(address(0));
 
         vm.expectEmit(true, false, false, false);
         emit IPauser.ContractUnregistered(address(pausable1));
@@ -327,6 +337,56 @@ contract PauserTest is Test {
     function test_config_revertsIfZeroTokenAddress() public {
         vm.expectRevert();
         pauser.config(DEFAULT_BURN_AMOUNT, address(0));
+    }
+
+    // ============ PAUSER VALIDATION TESTS ============
+
+    function test_register_revertsIfPauserNotSet() public {
+        // Create a new MockPausable with pauser set to address(0)
+        MockPausable noPauserContract = new MockPausable(address(0));
+
+        vm.expectRevert("Pauser: contract has not set this contract as its pauser");
+        pauser.register(address(noPauserContract));
+    }
+
+    function test_register_revertsIfPauserSetToWrongAddress() public {
+        // Create a new MockPausable with pauser set to a different address
+        address wrongAddress = makeAddr("wrongPauser");
+        MockPausable wrongPauserContract = new MockPausable(wrongAddress);
+
+        vm.expectRevert("Pauser: contract has not set this contract as its pauser");
+        pauser.register(address(wrongPauserContract));
+    }
+
+    function test_unregister_revertsIfPauserStillSet() public {
+        pauser.register(address(pausable1));
+
+        // Try to unregister WITHOUT clearing the pauser
+        vm.expectRevert("Pauser: contract still has this contract set as its pauser");
+        pauser.unregister(address(pausable1));
+    }
+
+    function test_unregister_succeedsAfterPauserCleared() public {
+        pauser.register(address(pausable1));
+
+        // Clear the pauser
+        pausable1.setPauser(address(0));
+
+        // Should succeed now
+        pauser.unregister(address(pausable1));
+        assertFalse(pauser.isRegistered(address(pausable1)), "Should be unregistered");
+    }
+
+    function test_unregister_succeedsAfterPauserChangedToOtherAddress() public {
+        pauser.register(address(pausable1));
+
+        // Change pauser to a different address
+        address otherAddress = makeAddr("otherPauser");
+        pausable1.setPauser(otherAddress);
+
+        // Should succeed because pauser is no longer this Global Pauser
+        pauser.unregister(address(pausable1));
+        assertFalse(pauser.isRegistered(address(pausable1)), "Should be unregistered");
     }
 
     // ============ VIEW FUNCTION TESTS ============

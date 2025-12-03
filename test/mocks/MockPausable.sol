@@ -27,12 +27,13 @@ contract MockPausable is IPausable {
     address public lastUnpauseCaller;
 
     /// @notice The authorized pauser address (only this address can pause/unpause)
-    address public authorizedPauser;
+    /// @dev This exposes a .pauser() getter for backward compatibility with Behodler3
+    address public pauser;
 
     // ============ CONSTRUCTOR ============
 
-    constructor(address _authorizedPauser) {
-        authorizedPauser = _authorizedPauser;
+    constructor(address _pauser) {
+        pauser = _pauser;
     }
 
     // ============ PAUSABLE INTERFACE ============
@@ -42,7 +43,7 @@ contract MockPausable is IPausable {
      * @dev Reverts if caller is not the authorized pauser
      */
     function pause() external {
-        require(msg.sender == authorizedPauser, "MockPausable: caller is not authorized pauser");
+        require(msg.sender == pauser, "MockPausable: caller is not authorized pauser");
         isPaused = true;
         pauseCallCount++;
         lastPauseCaller = msg.sender;
@@ -53,7 +54,7 @@ contract MockPausable is IPausable {
      * @dev Reverts if caller is not the authorized pauser
      */
     function unpause() external {
-        require(msg.sender == authorizedPauser, "MockPausable: caller is not authorized pauser");
+        require(msg.sender == pauser, "MockPausable: caller is not authorized pauser");
         isPaused = false;
         unpauseCallCount++;
         lastUnpauseCaller = msg.sender;
@@ -63,10 +64,10 @@ contract MockPausable is IPausable {
 
     /**
      * @notice Update the authorized pauser
-     * @param _authorizedPauser New authorized pauser address
+     * @param _pauser New authorized pauser address
      */
-    function setAuthorizedPauser(address _authorizedPauser) external {
-        authorizedPauser = _authorizedPauser;
+    function setPauser(address _pauser) external {
+        pauser = _pauser;
     }
 
     /**
