@@ -21,4 +21,12 @@ contract MockEYE is ERC20 {
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
     }
+
+    /**
+     * @notice Burn tokens from caller's balance (matches real EYE token signature)
+     * @param value Amount to burn
+     */
+    function burn(uint256 value) public {
+        _burn(msg.sender, value);
+    }
 }

@@ -25,7 +25,6 @@ contract PauserTest is Test {
     address public user2;
 
     uint256 constant DEFAULT_BURN_AMOUNT = 1000 * 1e18;
-    address constant DEAD_ADDRESS = address(0xdead);
 
     // ============ SETUP ============
 
@@ -175,16 +174,18 @@ contract PauserTest is Test {
         pauser.register(address(pausable1));
 
         uint256 userBalanceBefore = eyeToken.balanceOf(user1);
-        uint256 deadBalanceBefore = eyeToken.balanceOf(DEAD_ADDRESS);
+        uint256 totalSupplyBefore = eyeToken.totalSupply();
 
         vm.prank(user1);
         pauser.pause();
 
         uint256 userBalanceAfter = eyeToken.balanceOf(user1);
-        uint256 deadBalanceAfter = eyeToken.balanceOf(DEAD_ADDRESS);
+        uint256 totalSupplyAfter = eyeToken.totalSupply();
 
         assertEq(userBalanceBefore - userBalanceAfter, DEFAULT_BURN_AMOUNT, "User should lose burn amount");
-        assertEq(deadBalanceAfter - deadBalanceBefore, DEFAULT_BURN_AMOUNT, "Dead address should receive burn amount");
+        assertEq(
+            totalSupplyBefore - totalSupplyAfter, DEFAULT_BURN_AMOUNT, "Total supply should decrease by burn amount"
+        );
     }
 
     function test_pause_callsPauseOnAllRegisteredContracts() public {

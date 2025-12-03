@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IPauser.sol";
 import "./interfaces/IPausable.sol";
+import "./interfaces/IBurnable.sol";
 
 /**
  * @title Pauser
@@ -50,13 +51,14 @@ contract Pauser is Ownable, IPauser {
     /**
      * @notice Trigger a pause on all registered contracts by burning EYE tokens
      * @dev Anyone can call this function if they have enough EYE tokens
-     *      Burns EYE tokens to 0xdead address as an economic barrier
+     *      Burns EYE tokens using the token's burn() function as an economic barrier
      */
     function pause() external {
         require(_pausableContracts.length > 0, "Pauser: no contracts registered");
 
-        // Burn EYE tokens from caller to dead address
-        _eyeToken.safeTransferFrom(msg.sender, address(0x000000000000000000000000000000000000dEaD), eyeBurnAmount);
+        // Transfer EYE tokens from caller to this contract, then burn them
+        _eyeToken.safeTransferFrom(msg.sender, address(this), eyeBurnAmount);
+        IBurnable(address(_eyeToken)).burn(eyeBurnAmount);
 
         // Pause all registered contracts
         for (uint256 i = 0; i < _pausableContracts.length; i++) {
