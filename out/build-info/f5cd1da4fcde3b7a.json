@@ -1,1 +1,0 @@
-{"id":"f5cd1da4fcde3b7a","source_id_to_path":{"0":"lib/immutable/openzeppelin-contracts/contracts/access/Ownable.sol","1":"lib/immutable/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol","2":"lib/immutable/openzeppelin-contracts/contracts/utils/Context.sol","3":"src/Pauser.sol","4":"src/interfaces/IPausable.sol","5":"src/interfaces/IPauser.sol"},"language":"Solidity"}
